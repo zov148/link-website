@@ -1,0 +1,14 @@
+.DS_Store
+Thumbs.db
+.env
+.env.*
+node_modules/
+.data/
+.openai/
+_site/
+dist/
+*.exe
+*.msi
+*.zip
+*.tar.gz
+*.log
