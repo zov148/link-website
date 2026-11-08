@@ -1,4 +1,4 @@
-import {APP_ORIGIN,GITHUB_REPOSITORY} from './config.js';
+import {APP_ORIGIN,GITHUB_REPOSITORY} from './config.js?v=0.17.0';
 import {releaseFile,mountReleaseDownload} from './transfer.js';
 
 const METADATA_PATH='/api/releases/latest';
