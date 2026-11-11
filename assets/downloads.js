@@ -1,4 +1,4 @@
-import {APP_ORIGIN,GITHUB_REPOSITORY} from './config.js?v=0.17.0';
+import {APP_ORIGIN,GITHUB_REPOSITORY} from './config.js';
 import {releaseFile,mountReleaseDownload} from './transfer.js';
 
 const METADATA_PATH='/api/releases/latest';
@@ -26,7 +26,7 @@ export function validateRelease(value){
     kinds.add(file.kind);const checked=releaseFile({...file,available:true},value.version);
     return Object.freeze({...checked,available:file.available});
   });
-  return Object.freeze({version:value.version,signed:value.signed,files:Object.freeze(files)});
+  const stage=['alpha','beta','release'].includes(value.stage)?value.stage:'alpha';return Object.freeze({version:value.version,stage,label:value.version+(stage==='release'?'':' '+(stage==='beta'?'Beta':'Alpha')),signed:value.signed,files:Object.freeze(files)});
 }
 
 export async function loadRelease(fetcher=createReleaseFetcher(),{timeoutMs=15000}={}){
@@ -64,11 +64,11 @@ export async function initDownloads({root=document,fetcher=createReleaseFetcher(
   disable(installerLink);disable(portableLink);if(button)button.hidden=true;
   try{
     const release=await loadRelease(fetcher),installer=release.files.find(file=>file.kind==='installer'),portable=release.files.find(file=>file.kind==='portable');
-    for(const span of all('[data-version]'))span.textContent=release.version;
+    for(const span of all('[data-version]'))span.textContent=release.label;
     const notice=one('#unsigned-notice');if(notice)notice.hidden=release.signed;
     if(installer?.available){
       installerLink.href=releaseURL(installer.url);installerLink.removeAttribute('aria-disabled');installerLink.classList.remove('disabled');installerLink.textContent='Обычное скачивание';
-      const info=one('#build-info');if(info)info.textContent=`Версия ${release.version} · ${megabytes(installer.size)} · Windows 10/11 x64${release.signed?'':' · тестовая сборка'}`;
+      const info=one('#build-info');if(info)info.textContent=`Версия ${release.label} · ${megabytes(installer.size)} · Windows 10/11 x64${release.signed?'':' · тестовая сборка'}`;
       mountReleaseDownload(installer,{fetcher});
       const managed=button&&!button.hidden;
       if(managed)button.textContent='Скачать для Windows';else installerLink.textContent='Скачать для Windows';
